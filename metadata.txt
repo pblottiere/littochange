@@ -1,0 +1,10 @@
+[general]
+name=Littodyn
+description=Description
+about=About this plugin
+version=1.0
+qgisMinimumVersion=3.0
+author=Paul Blottiere
+email=blottiere.paul@gmail.com
+repository=https://github.com/pblottiere/littodyn
+hasProcessingProvider=yes
