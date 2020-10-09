@@ -8,17 +8,21 @@ __email__ = "blottiere.paul@gmail.com"
 __license__ = "GPLv3"
 
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (QgsProcessing,
+from qgis.core import (QgsProject,
+                       QgsProcessing,
                        QgsFeatureSink,
                        QgsProcessingException,
                        QgsProcessingAlgorithm,
+                       QgsProcessingParameterRasterLayer,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink)
 from qgis import processing
 
 
 class ChangeDetectionAlgorithm(QgsProcessingAlgorithm):
-    INPUT = 'INPUT'
+    INPUT_EXTENT = 'INPUT_EXTENT'
+    INPUT_RASTER_1 = 'INPUT_RASTER_1'
+    INPUT_RASTER_2 = 'INPUT_RASTER_2'
     OUTPUT = 'OUTPUT'
 
     def tr(self, string):
@@ -37,27 +41,65 @@ class ChangeDetectionAlgorithm(QgsProcessingAlgorithm):
         return self.tr("Change Detection")
 
     def initAlgorithm(self, config=None):
-        # We add the input vector features source. It can have any kind of
-        # geometry.
         self.addParameter(
             QgsProcessingParameterFeatureSource(
-                self.INPUT,
-                self.tr('Input layer'),
-                [QgsProcessing.TypeVectorAnyGeometry]
+                self.INPUT_EXTENT,
+                self.tr('Extent'),
+                [QgsProcessing.TypeVectorPolygon]
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterRasterLayer(
+                self.INPUT_RASTER_1,
+                self.tr('Raster 1'),
+                [QgsProcessing.TypeRaster]
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterRasterLayer(
+                self.INPUT_RASTER_2,
+                self.tr('Raster 2'),
+                [QgsProcessing.TypeRaster]
             )
         )
 
         # We add a feature sink in which to store our processed features (this
         # usually takes the form of a newly created vector layer when the
         # algorithm is run in QGIS).
-        self.addParameter(
-            QgsProcessingParameterFeatureSink(
-                self.OUTPUT,
-                self.tr('Output layer')
-            )
-        )
+        # self.addParameter(
+        #     QgsProcessingParameterFeatureSink(
+        #         self.OUTPUT,
+        #         self.tr('Output layer')
+        #     )
+        # )
 
     def processAlgorithm(self, parameters, context, feedback):
+        extent = self.parameterAsSource(
+            parameters,
+            self.INPUT_EXTENT,
+            context
+        )
+
+        raster_1 = self.parameterAsRasterLayer(
+            parameters,
+            self.INPUT_RASTER_1,
+            context
+        )
+
+        raster_2 = self.parameterAsRasterLayer(
+            parameters,
+            self.INPUT_RASTER_2,
+            context
+        )
+
+        name = "{}_{}".format(raster_1.name(), raster_2.name())
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(name)
+
+        return {}
+
         # Retrieve the feature source and sink. The 'dest_id' variable is used
         # to uniquely identify the feature sink, and must be included in the
         # dictionary returned by the processAlgorithm function.
