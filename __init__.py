@@ -7,11 +7,9 @@ __date__ = "2020/10/10"
 __email__ = "blottiere.paul@gmail.com"
 __license__ = "GPLv3"
 
-import sklearn
-
 from qgis.core import QgsApplication
 
-from .provider.provider import LittoDynProvider
+from .src.gui.provider.provider import LittoDynProvider
 
 
 def classFactory(iface):
