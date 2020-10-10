@@ -11,28 +11,29 @@ from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QComboBox, QLineEdit
 
 from qgis import processing
-from qgis.core import (QgsProject,
-                       QgsMapLayer,
-                       QgsGeometry,
-                       QgsFields,
-                       QgsMessageLog,
-                       QgsVectorLayer,
-                       QgsProcessing,
-                       QgsFeatureSink,
-                       QgsProcessingContext,
-                       QgsProcessingUtils,
-                       QgsProcessingException,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingParameterDefinition,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureSink)
+from qgis.core import (
+    QgsProject,
+    QgsMapLayer,
+    QgsGeometry,
+    QgsFields,
+    QgsMessageLog,
+    QgsVectorLayer,
+    QgsProcessing,
+    QgsFeatureSink,
+    QgsProcessingContext,
+    QgsProcessingUtils,
+    QgsProcessingException,
+    QgsProcessingAlgorithm,
+    QgsProcessingParameterDefinition,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterFeatureSink,
+)
 
 from processing.gui.wrappers import WidgetWrapper
 from processing.core.ProcessingConfig import ProcessingConfig
 
 
 class LittoDynRasterComboBoxWrapper(WidgetWrapper):
-
     def __init__(self, param, dialog, row=0, col=0, **kwargs):
         super().__init__(param, dialog, row, col, **kwargs)
 
@@ -71,13 +72,13 @@ class LittoDynRasterComboBoxWrapper(WidgetWrapper):
         for parameter in self.dialog.algorithm().parameterDefinitions():
             name = parameter.name()
 
-            if name == 'INFO_DATE':
+            if name == "INFO_DATE":
                 w_date = mw.wrappers[name]
 
-            if name == 'INPUT_RASTER_1':
+            if name == "INPUT_RASTER_1":
                 w_raster_1 = mw.wrappers[name]
 
-            if name == 'INPUT_RASTER_2':
+            if name == "INPUT_RASTER_2":
                 w_raster_2 = mw.wrappers[name]
 
         if w_raster_1 and w_raster_2 and w_date:
@@ -98,19 +99,25 @@ class LittoDynRasterComboBoxWrapper(WidgetWrapper):
 
 
 class LittoDynRasterParameter(QgsProcessingParameterDefinition):
+    def __init__(
+        self,
+        name="",
+        description="",
+        options=[],
+        default=None,
+        isSource=False,
+        multiple=False,
+        optional=False,
+    ):
 
-    def __init__(self, name='', description='', options=[], default=None, isSource=False,
-                 multiple=False, optional=False):
+        QgsProcessingParameterDefinition.__init__(
+            self, name, description, default, optional
+        )
 
-        QgsProcessingParameterDefinition.__init__(self, name, description, default, optional)
-
-        self.setMetadata({
-            'widget_wrapper': {
-                'class': LittoDynRasterComboBoxWrapper}})
+        self.setMetadata({"widget_wrapper": {"class": LittoDynRasterComboBoxWrapper}})
 
 
 class LittoDynValueWrapper(WidgetWrapper):
-
     def __init__(self, param, dialog, row=0, col=0, **kwargs):
         super().__init__(param, dialog, row, col, **kwargs)
 
@@ -127,35 +134,42 @@ class LittoDynValueWrapper(WidgetWrapper):
 
 
 class LittoDynDateParameter(QgsProcessingParameterDefinition):
+    def __init__(
+        self,
+        name="",
+        description="",
+        options=[],
+        default=None,
+        isSource=False,
+        multiple=False,
+        optional=False,
+    ):
 
-    def __init__(self, name='', description='', options=[], default=None, isSource=False,
-                 multiple=False, optional=False):
+        QgsProcessingParameterDefinition.__init__(
+            self, name, description, default, optional
+        )
 
-        QgsProcessingParameterDefinition.__init__(self, name, description, default, optional)
-
-        self.setMetadata({
-            'widget_wrapper': {
-                'class': LittoDynValueWrapper}})
+        self.setMetadata({"widget_wrapper": {"class": LittoDynValueWrapper}})
 
 
 class ChangeDetectionAlgorithm(QgsProcessingAlgorithm):
-    INPUT_EXTENT = 'INPUT_EXTENT'
-    INPUT_RASTER_1 = 'INPUT_RASTER_1'
-    INPUT_RASTER_2 = 'INPUT_RASTER_2'
-    INFO_DATE = 'INFO_DATE'
-    OUTPUT_BUFFER = 'OUTPUT_BUFFER'
+    INPUT_EXTENT = "INPUT_EXTENT"
+    INPUT_RASTER_1 = "INPUT_RASTER_1"
+    INPUT_RASTER_2 = "INPUT_RASTER_2"
+    INFO_DATE = "INFO_DATE"
+    OUTPUT_BUFFER = "OUTPUT_BUFFER"
 
     def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return QCoreApplication.translate("Processing", string)
 
     def createInstance(self):
         return ChangeDetectionAlgorithm()
 
     def name(self):
-        return 'changedetection'
+        return "changedetection"
 
     def displayName(self):
-        return self.tr('Change Detection')
+        return self.tr("Change Detection")
 
     def shortHelpString(self):
         return self.tr("Change Detection")
@@ -163,76 +177,54 @@ class ChangeDetectionAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
-                self.INPUT_EXTENT,
-                self.tr('Extent'),
-                [QgsProcessing.TypeVectorPolygon]
+                self.INPUT_EXTENT, self.tr("Extent"), [QgsProcessing.TypeVectorPolygon]
             )
         )
 
         self.addParameter(
-            LittoDynRasterParameter(
-                self.INPUT_RASTER_1,
-                self.tr('Raster 1')
-            )
+            LittoDynRasterParameter(self.INPUT_RASTER_1, self.tr("Raster 1"))
         )
 
         self.addParameter(
-            LittoDynRasterParameter(
-                self.INPUT_RASTER_2,
-                self.tr('Raster 2')
-            )
+            LittoDynRasterParameter(self.INPUT_RASTER_2, self.tr("Raster 2"))
         )
 
         self.addParameter(
-            LittoDynDateParameter(
-                self.INFO_DATE,
-                self.tr('Days between rasters')
-            )
+            LittoDynDateParameter(self.INFO_DATE, self.tr("Days between rasters"))
         )
 
         self.addParameter(
-                QgsProcessingParameterFeatureSink(
-                    self.OUTPUT_BUFFER,
-                    self.tr('Buffered extent')
-                    )
-                )
+            QgsProcessingParameterFeatureSink(
+                self.OUTPUT_BUFFER, self.tr("Buffered extent")
+            )
+        )
 
     def processAlgorithm(self, parameters, context, feedback):
-        extent = self.parameterAsVectorLayer(
-            parameters,
-            self.INPUT_EXTENT,
-            context
-        )
+        extent = self.parameterAsVectorLayer(parameters, self.INPUT_EXTENT, context)
 
-        raster_1_id = self.parameterAsString(
-            parameters,
-            self.INPUT_RASTER_1,
-            context
-        )
+        raster_1_id = self.parameterAsString(parameters, self.INPUT_RASTER_1, context)
         raster_1 = QgsProject.instance().mapLayer(raster_1_id)
 
-        raster_2_id = self.parameterAsString(
-            parameters,
-            self.INPUT_RASTER_2,
-            context
-        )
+        raster_2_id = self.parameterAsString(parameters, self.INPUT_RASTER_2, context)
         raster_2 = QgsProject.instance().mapLayer(raster_2_id)
 
         (sink, self.dest_id) = self.parameterAsSink(
-                parameters,
-                self.OUTPUT_BUFFER,
-                context,
-                QgsFields(),
-                extent.wkbType(),
-                extent.sourceCrs()
-                )
+            parameters,
+            self.OUTPUT_BUFFER,
+            context,
+            QgsFields(),
+            extent.wkbType(),
+            extent.sourceCrs(),
+        )
 
         name = "{}_{}".format(raster_1.name(), raster_2.name())
         ProcessingConfig.setSettingValue(ProcessingConfig.RESULTS_GROUP_NAME, name)
 
         for feature in extent.getFeatures():
             geom = feature.geometry()
-            buffer = geom.buffer(0.001, 4, QgsGeometry.CapFlat, QgsGeometry.JoinStyleMiter, 100)
+            buffer = geom.buffer(
+                0.001, 4, QgsGeometry.CapFlat, QgsGeometry.JoinStyleMiter, 100
+            )
             feature.setGeometry(buffer)
             feature.setFields(QgsFields())
             sink.addFeature(feature)

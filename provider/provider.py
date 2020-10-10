@@ -14,15 +14,14 @@ from .algs.change import ChangeDetectionAlgorithm
 
 
 class LittoDynProvider(QgsProcessingProvider):
-
     def loadAlgorithms(self, *args, **kwargs):
         self.addAlgorithm(ChangeDetectionAlgorithm())
 
     def id(self, *args, **kwargs):
-        return 'littodyn'
+        return "littodyn"
 
     def name(self, *args, **kwargs):
-        return self.tr('LittoDyn')
+        return self.tr("LittoDyn")
 
     def icon(self):
         return QgsProcessingProvider.icon(self)
