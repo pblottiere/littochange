@@ -1,7 +1,7 @@
 # LittoDyn
 
 
-#### Installation
+### Installation
 
 Installation from sources on GNU/Linux for the `default` profile:
 
@@ -16,7 +16,7 @@ Then:
 - activate the plugin
 
 
-#### Test
+### Test
 
 To run a simple PCA test:
 
