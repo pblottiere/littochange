@@ -152,7 +152,7 @@ class LittoDynDateParameter(QgsProcessingParameterDefinition):
         self.setMetadata({"widget_wrapper": {"class": LittoDynValueWrapper}})
 
 
-class ChangeDetectionAlgorithm(QgsProcessingAlgorithm):
+class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
     INPUT_EXTENT = "INPUT_EXTENT"
     INPUT_RASTER_1 = "INPUT_RASTER_1"
     INPUT_RASTER_2 = "INPUT_RASTER_2"
@@ -163,7 +163,7 @@ class ChangeDetectionAlgorithm(QgsProcessingAlgorithm):
         return QCoreApplication.translate("Processing", string)
 
     def createInstance(self):
-        return ChangeDetectionAlgorithm()
+        return LittoDynChangeDetectorAlgorithm()
 
     def name(self):
         return "changedetection"

@@ -10,12 +10,12 @@ __license__ = "GPLv3"
 
 from qgis.core import QgsProcessingProvider
 
-from .algs.change import ChangeDetectionAlgorithm
+from .algs.changedetector import LittoDynChangeDetectorAlgorithm
 
 
 class LittoDynProvider(QgsProcessingProvider):
     def loadAlgorithms(self, *args, **kwargs):
-        self.addAlgorithm(ChangeDetectionAlgorithm())
+        self.addAlgorithm(LittoDynChangeDetectorAlgorithm())
 
     def id(self, *args, **kwargs):
         return "littodyn"
