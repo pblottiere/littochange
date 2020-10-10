@@ -19,6 +19,7 @@ from qgis.core import (QgsProject,
                        QgsVectorLayer,
                        QgsProcessing,
                        QgsFeatureSink,
+                       QgsProcessingContext,
                        QgsProcessingUtils,
                        QgsProcessingException,
                        QgsProcessingAlgorithm,
@@ -27,6 +28,7 @@ from qgis.core import (QgsProject,
                        QgsProcessingParameterFeatureSink)
 
 from processing.gui.wrappers import WidgetWrapper
+from processing.core.ProcessingConfig import ProcessingConfig
 
 
 class LittoDynRasterComboBoxWrapper(WidgetWrapper):
@@ -188,6 +190,13 @@ class ChangeDetectionAlgorithm(QgsProcessingAlgorithm):
             )
         )
 
+        self.addParameter(
+                QgsProcessingParameterFeatureSink(
+                    self.OUTPUT_BUFFER,
+                    self.tr('Buffered extent')
+                    )
+                )
+
     def processAlgorithm(self, parameters, context, feedback):
         extent = self.parameterAsVectorLayer(
             parameters,
@@ -209,33 +218,23 @@ class ChangeDetectionAlgorithm(QgsProcessingAlgorithm):
         )
         raster_2 = QgsProject.instance().mapLayer(raster_2_id)
 
+        (sink, self.dest_id) = self.parameterAsSink(
+                parameters,
+                self.OUTPUT_BUFFER,
+                context,
+                QgsFields(),
+                extent.wkbType(),
+                extent.sourceCrs()
+                )
+
         name = "{}_{}".format(raster_1.name(), raster_2.name())
-        root = QgsProject.instance().layerTreeRoot()
-        self.group = root.addGroup(name)
+        ProcessingConfig.setSettingValue(ProcessingConfig.RESULTS_GROUP_NAME, name)
 
-        vl = extent.clone()
-        vl.setName("Extent")
-        QgsProject.instance().addMapLayer(vl)
-        self.group.addLayer(vl)
-
-        vl = QgsVectorLayer("Polygon", "Bufferized extent", "memory")
-        vl.setCrs(extent.crs())
-        vl.startEditing()
         for feature in extent.getFeatures():
             geom = feature.geometry()
             buffer = geom.buffer(0.001, 4, QgsGeometry.CapFlat, QgsGeometry.JoinStyleMiter, 100)
             feature.setGeometry(buffer)
             feature.setFields(QgsFields())
-            vl.addFeature(feature)
-        vl.updateExtents()
-        vl.commitChanges()
+            sink.addFeature(feature)
 
-        QgsProject.instance().addMapLayer(vl)
-        self.group.addLayer(vl)
-
-        vl = QgsVectorLayer("Polygon", "TODO", "memory")
-        vl.setCrs(extent.crs())
-        QgsProject.instance().addMapLayer(vl)
-        self.group.addLayer(vl)
-
-        return {}
+        return {self.OUTPUT_BUFFER: self.dest_id}
