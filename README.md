@@ -21,5 +21,10 @@ Then:
 To run a simple PCA test:
 
 ```` bash
+$ virtualenv venv
+$ source venv/bin/activate
+$ pip install -r requirements.txt
 $ PYTHONPATH=$(pwd) python tests/test_pca.py
 ````
+
+The resulting image is `tests/pca.tif`.
