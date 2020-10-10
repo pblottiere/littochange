@@ -12,8 +12,8 @@ $ git clone https://github.com/pblottiere/littodyn
 
 Then:
 
-    - restart QGIS
-    - activate the plugin
+- restart QGIS
+- activate the plugin
 
 
 #### Test
