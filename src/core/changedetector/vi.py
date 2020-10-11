@@ -27,10 +27,10 @@ class LittoDynChangeDetectorVi(LittoDynChangeDetector):
         For vegetaion indexes we always return abs diff between the vegetation indexes of input images
         """
 
-        vi1=self._vi(self.img1)
-        vi2=self._vi(self.img2)
-        dist = np.zeros((self.img1.shape[0],self.img1.shape[1]))
-        self.change=np.abs(vi2-vi1)
+        vi1 = self._vi(self.img1)
+        vi2 = self._vi(self.img2)
+        dist = np.zeros((self.img1.shape[0], self.img1.shape[1]))
+        self.change = np.abs(vi2 - vi1)
 
     def _vi(self):
         """

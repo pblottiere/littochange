@@ -18,8 +18,8 @@ class LittoDynChangeDetectorNgrdi(LittoDynChangeDetectorVi):
     NGRDI= (Green - Red)/(Green + Red) `
     """
 
-    def _vi(self,img):
+    def _vi(self, img):
         """
         ngrdi of image
         """
-        return (img[:,:,1]-img[:,:,2])/(img[:,:,1]+img[:,:,2])
+        return (img[:, :, 1] - img[:, :, 2]) / (img[:, :, 1] + img[:, :, 2])

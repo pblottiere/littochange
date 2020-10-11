@@ -18,8 +18,8 @@ class LittoDynChangeDetectorNdvi(LittoDynChangeDetectorVi):
     NDVI = (NIR-R)/(NIR+R)
     """
 
-    def _vi(self,img):
+    def _vi(self, img):
         """
         ndvi of image
         """
-        return (img[:,:,3]-img[:,:,2])/(img[:,:,3]+img[:,:,2])
+        return (img[:, :, 3] - img[:, :, 2]) / (img[:, :, 3] + img[:, :, 2])

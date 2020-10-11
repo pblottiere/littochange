@@ -18,8 +18,11 @@ class LittoDynChangeDetectorEvi(LittoDynChangeDetectorVi):
     EVI = 2.5 * ((NIR - R) / (NIR + 6 * R â 7.5 * B + 1))
     """
 
-    def _vi(self,img):
+    def _vi(self, img):
         """
         evi of image
         """
-        return 2.5*((img[:,:,3]-img[:,:,2])/(img[:,:,3]+6*img[:,:,2]-7.5*img[:,:,0]+1))
+        return 2.5 * (
+            (img[:, :, 3] - img[:, :, 2])
+            / (img[:, :, 3] + 6 * img[:, :, 2] - 7.5 * img[:, :, 0] + 1)
+        )

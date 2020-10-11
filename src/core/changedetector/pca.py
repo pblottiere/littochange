@@ -21,19 +21,25 @@ class LittoDynChangeDetectorPca(LittoDynChangeDetector):
     """
 
     def _find_vector_set(self, diff_image):
-        self.isdata=np.where(self.roi_mask)
-        vector_set=np.zeros([len(self.isdata[0]),diff_image.shape[2]],dtype=np.float)
+        self.isdata = np.where(self.roi_mask)
+        vector_set = np.zeros(
+            [len(self.isdata[0]), diff_image.shape[2]], dtype=np.float
+        )
         for i in range(len(self.isdata[0])):
-            vector_set[i,:]=diff_image[self.isdata[0][i], self.isdata[1][i],:]
+            vector_set[i, :] = diff_image[self.isdata[0][i], self.isdata[1][i], :]
         mean_vec = np.mean(vector_set, axis=0)
         vector_set -= mean_vec
 
         return vector_set, mean_vec
 
     def _find_FVS(self, EVS, diff_image, mean_vec):
-        feature_vector_set=np.zeros([len(self.isdata[0]),diff_image.shape[2]],dtype=np.float)
+        feature_vector_set = np.zeros(
+            [len(self.isdata[0]), diff_image.shape[2]], dtype=np.float
+        )
         for i in range(len(self.isdata[0])):
-            feature_vector_set[i,:]=diff_image[self.isdata[0][i], self.isdata[1][i],:]
+            feature_vector_set[i, :] = diff_image[
+                self.isdata[0][i], self.isdata[1][i], :
+            ]
 
         FVS = np.dot(feature_vector_set, EVS)
         FVS = FVS - mean_vec
@@ -46,10 +52,10 @@ class LittoDynChangeDetectorPca(LittoDynChangeDetector):
         output = kmeans.predict(FVS)
         count = Counter(output)
 
-        max_index = max(count, key = count.get)
-        change_map=np.zeros(new)+np.nan
+        max_index = max(count, key=count.get)
+        change_map = np.zeros(new) + np.nan
         for i in range(len(self.isdata[0])):
-           change_map[self.isdata[0][i], self.isdata[1][i]]=output[i]
+            change_map[self.isdata[0][i], self.isdata[1][i]] = output[i]
 
         return max_index, change_map
 
@@ -66,4 +72,6 @@ class LittoDynChangeDetectorPca(LittoDynChangeDetector):
         FVS = self._find_FVS(EVS, diff_image, mean_vec)
 
         components = 3
-        max_index, self.change = self._clustering(FVS, components, [diff_image.shape[0],diff_image.shape[1]])
+        max_index, self.change = self._clustering(
+            FVS, components, [diff_image.shape[0], diff_image.shape[1]]
+        )

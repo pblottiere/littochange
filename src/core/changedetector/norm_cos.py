@@ -19,8 +19,8 @@ class LittoDynChangeDetectorNormCos(LittoDynChangeDetector):
     """
 
     def _dodetect(self):
-        dist = np.zeros((self.img1.shape[0],self.img1.shape[1]))
+        dist = np.zeros((self.img1.shape[0], self.img1.shape[1]))
         for i in range(self.img1.shape[0]):
             for j in range(self.img1.shape[1]):
-                dist[i,j] = distance.cosine(self.img1[i,j,:], self.img2[i,j,:])
-        self.change=dist
+                dist[i, j] = distance.cosine(self.img1[i, j, :], self.img2[i, j, :])
+        self.change = dist
