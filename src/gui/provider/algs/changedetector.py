@@ -317,8 +317,8 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
         detector.detect()
 
         # store output layers in group
+        alg_name = self.options[alg].lower().replace(" ", "_")
         if Qgis.QGIS_VERSION_INT >= 31500:
-            alg_name = self.options[alg].lower().replace(" ", "_")
             name = "{}_{}_{}".format(raster_1.name(), raster_2.name(), alg_name)
             ProcessingConfig.setSettingValue(ProcessingConfig.RESULTS_GROUP_NAME, name)
 
@@ -327,12 +327,12 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
         path_changes = os.path.join(tmp, "changes.tif")
         detector.save(path_changes)
 
-        rl = QgsRasterLayer(path_changes, "changes", "gdal")
+        rl = QgsRasterLayer(path_changes, "{}_changes".format(alg_name), "gdal")
         context.temporaryLayerStore().addMapLayer(rl)
         context.addLayerToLoadOnCompletion(
             rl.id(),
             QgsProcessingContext.LayerDetails(
-                "Changes", context.project(), self.OUTPUT_CHANGES
+                "changes_{}".format(alg_name), context.project(), self.OUTPUT_CHANGES
             ),
         )
 
