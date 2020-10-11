@@ -45,13 +45,11 @@ Then:
 
 ### Test
 
-To run a simple PCA test:
+To run algorithms on test data:
 
 ```` bash
 $ virtualenv venv
 $ source venv/bin/activate
 $ pip install -r requirements.txt
-$ PYTHONPATH=$(pwd) python tests/test_pca.py
+$ PYTHONPATH=$(pwd) python tests/test_algs.py
 ````
-
-The resulting image is `tests/pca.tif`.
