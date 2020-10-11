@@ -1,3 +1,16 @@
 __pycache__
 venv
-pca.tif
+CORR.tif
+CORR.tif.aux.xml
+COS.tif
+COS.tif.aux.xml
+EUCL.tif
+EUCL.tif.aux.xml
+EVI.tif
+EVI.tif.aux.xml
+NDVI.tif
+NDVI.tif.aux.xml
+NGRDI.tif
+NGRDI.tif.aux.xml
+PCA.tif
+PCA.tif.aux.xml
