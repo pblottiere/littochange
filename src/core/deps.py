@@ -15,33 +15,35 @@ from sys import platform
 class Deps(object):
 
     def run(self):
-        if platform == "win32":
-            deps = ["numpy", "scipy", "gdal", "scikit-learn"]
+        if platform != "win32":
+            return
 
-            missing = []
-            for dep in deps:
-                try:
-                    if dep == "scikit-learn":
-                        dep = "sklearn"
-                    importlib.import_module(dep)
-                except ModuleNotFoundError:
-                    missing.append(dep)
+        deps = ["numpy", "scipy", "gdal", "scikit-learn"]
 
-            if not missing:
-                return None
+        missing = []
+        for dep in deps:
+            try:
+                if dep == "scikit-learn":
+                    dep = "sklearn"
+                importlib.import_module(dep)
+            except ModuleNotFoundError:
+                missing.append(dep)
 
-            cmds = [b"py3_env"]
-            for dep in missing:
-                c = "python3 -m pip install {} --user \n".format(dep)
-                cmds.append(c.encode("latin1"))
+        if not missing:
+            return None
 
-            p = subprocess.Popen(
-                "cmd.exe", stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
+        cmds = [b"py3_env\n"]
+        for dep in missing:
+            c = "python3 -m pip install {} --user \n".format(dep)
+            cmds.append(c.encode("latin1"))
 
-            for cmd in cmds:
-                p.stdin.write(cmd)
+        p = subprocess.Popen(
+            "cmd.exe", stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
 
-            p.stdin.close()
+        for cmd in cmds:
+            p.stdin.write(cmd)
 
-            return missing
+        p.stdin.close()
+
+        return missing
