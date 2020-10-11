@@ -7,6 +7,7 @@ __date__ = "2020/10/10"
 __email__ = "blottiere.paul@gmail.com"
 __license__ = "GPLv3"
 
+import importlib
 import subprocess
 from sys import platform
 
@@ -20,12 +21,14 @@ class Deps(object):
             missing = []
             for dep in deps:
                 try:
+                    if dep == "scikit-learn":
+                        dep = "sklearn"
                     importlib.import_module(dep)
                 except ModuleNotFoundError:
                     missing.append(dep)
 
             if not missing:
-                return missing
+                return None
 
             cmds = [b"py3_env"]
             for dep in missing:
@@ -41,4 +44,4 @@ class Deps(object):
 
             p.stdin.close()
 
-            return None
+            return missing

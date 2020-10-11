@@ -7,7 +7,7 @@ __date__ = "2020/10/10"
 __email__ = "blottiere.paul@gmail.com"
 __license__ = "GPLv3"
 
-from qgis.core import QgsApplication
+from qgis.core import QgsApplication, Qgis
 
 from .src.core.deps import Deps
 
