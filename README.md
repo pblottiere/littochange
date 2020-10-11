@@ -4,12 +4,28 @@
 
 ### Installation
 
+#### Windows
+
+You can download the zip file on `https://github.com/pblottiere/littodyn`. Then
+you have to unzip the directory in
+`C:\Users\Login\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins` and
+prepare the directory to look like:
+
+- plugins\littodyn\README.md
+- plugins\littodyn\metadata.txt
+- plugins\littodyn\src
+- ...
+
+#### GNU/Linux
+
 Installation from sources on GNU/Linux for the `default` profile:
 
 ```` bash
 $ cd ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/
 $ git clone https://github.com/pblottiere/littodyn
 ````
+
+#### Dependencies
 
 Some Python dependencies are necessary:
 
