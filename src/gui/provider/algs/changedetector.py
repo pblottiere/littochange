@@ -324,7 +324,7 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
 
         # save result in temporary file
         tmp = tempfile.mkdtemp()
-        path_changes = os.path.join(tmp, "changes.tif")
+        path_changes = os.path.join(tmp, "{}_changes.tif".format(alg_name))
         detector.save(path_changes)
 
         rl = QgsRasterLayer(path_changes, "{}_changes".format(alg_name), "gdal")
@@ -332,7 +332,7 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
         context.addLayerToLoadOnCompletion(
             rl.id(),
             QgsProcessingContext.LayerDetails(
-                "changes_{}".format(alg_name), context.project(), self.OUTPUT_CHANGES
+                "{}_changes".format(alg_name), context.project(), self.OUTPUT_CHANGES
             ),
         )
 
