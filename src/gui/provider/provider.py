@@ -7,7 +7,8 @@ __date__ = "2020/10/10"
 __email__ = "blottiere.paul@gmail.com"
 __license__ = "GPLv3"
 
-
+import os
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import QgsProcessingProvider
 
 from .algs.changedetector import LittoDynChangeDetectorAlgorithm
@@ -24,4 +25,5 @@ class LittoDynProvider(QgsProcessingProvider):
         return self.tr("LittoDyn")
 
     def icon(self):
-        return QgsProcessingProvider.icon(self)
+        cwd = os.path.dirname(os.path.realpath(__file__))
+        return QIcon(os.path.join(cwd, "icon.png"))

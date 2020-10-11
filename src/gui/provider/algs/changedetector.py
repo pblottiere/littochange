@@ -9,6 +9,7 @@ __license__ = "GPLv3"
 
 import os
 import tempfile
+from qgis.PyQt.QtGui import QIcon
 
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QComboBox, QLineEdit
@@ -179,6 +180,10 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
 
     def tr(self, string):
         return QCoreApplication.translate("Processing", string)
+
+    def icon(self):
+        cwd = os.path.dirname(os.path.realpath(__file__))
+        return QIcon(os.path.join(cwd, "icon.png"))
 
     def createInstance(self):
         return LittoDynChangeDetectorAlgorithm()
