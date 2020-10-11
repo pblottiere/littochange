@@ -16,6 +16,7 @@ from qgis.PyQt.QtWidgets import QComboBox, QLineEdit
 
 from qgis import processing
 from qgis.core import (
+    Qgis,
     QgsFields,
     QgsProject,
     QgsWkbTypes,
@@ -316,9 +317,10 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
         detector.detect()
 
         # store output layers in group
-        alg_name = self.options[alg].lower().replace(" ", "_")
-        name = "{}_{}_{}".format(raster_1.name(), raster_2.name(), alg_name)
-        ProcessingConfig.setSettingValue(ProcessingConfig.RESULTS_GROUP_NAME, name)
+        if Qgis.QGIS_VERSION_INT >= 31500:
+            alg_name = self.options[alg].lower().replace(" ", "_")
+            name = "{}_{}_{}".format(raster_1.name(), raster_2.name(), alg_name)
+            ProcessingConfig.setSettingValue(ProcessingConfig.RESULTS_GROUP_NAME, name)
 
         # save result in temporary file
         tmp = tempfile.mkdtemp()
