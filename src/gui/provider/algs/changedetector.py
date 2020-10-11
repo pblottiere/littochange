@@ -40,7 +40,12 @@ from qgis.core import (
 from processing.gui.wrappers import WidgetWrapper
 from processing.core.ProcessingConfig import ProcessingConfig
 
+from littodyn.src.core.changedetector.evi import LittoDynChangeDetectorEvi
 from littodyn.src.core.changedetector.pca import LittoDynChangeDetectorPca
+from littodyn.src.core.changedetector.ndvi import LittoDynChangeDetectorNdvi
+from littodyn.src.core.changedetector.ngrdi import LittoDynChangeDetectorNgrdi
+from littodyn.src.core.changedetector.norm_cos import LittoDynChangeDetectorNormCos
+from littodyn.src.core.changedetector.norm_corr import LittoDynChangeDetectorNormCorr
 from littodyn.src.core.changedetector.norm_euclid import LittoDynChangeDetectorNormEuclid
 
 
@@ -188,9 +193,9 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
         return self.tr("Change Detection")
 
     def initAlgorithm(self, config=None):
-        options = ["PCA", "Euclidean Norm"]
+        self.options = ["PCA", "EVI", "NDVI", "NGRDI", "Euclidean Norm", "Correlation Norm", "Cosine Norm"]
         self.addParameter(
-            QgsProcessingParameterEnum(self.INPUT_ALG_NAME, self.tr("Algorithm"), options=options, defaultValue=0)
+            QgsProcessingParameterEnum(self.INPUT_ALG_NAME, self.tr("Algorithm"), options=self.options, defaultValue=0)
         )
 
         self.addParameter(
@@ -267,16 +272,23 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
         path1 = raster_1.source()
         path2 = raster_2.source()
         detector = LittoDynChangeDetectorPca(path1, path2, path_roi)
-        if alg == 1:  # Euclidean norm
+        if alg == 1:
+            detector = LittoDynChangeDetectorEvi(path1, path2, path_roi)
+        elif alg == 2:
+            detector = LittoDynChangeDetectorNdvi(path1, path2, path_roi)
+        elif alg == 3:
+            detector = LittoDynChangeDetectorNgrdi(path1, path2, path_roi)
+        elif alg == 4:
             detector = LittoDynChangeDetectorNormEuclid(path1, path2, path_roi)
+        elif alg == 5:
+            detector = LittoDynChangeDetectorNormCorr(path1, path2, path_roi)
+        elif alg == 6:
+            detector = LittoDynChangeDetectorNormCos(path1, path2, path_roi)
         detector.detect()
 
         # store output layers in group
-        name = "{}_{}".format(raster_1.name(), raster_2.name())
-        if alg == 0:
-            name = "{}_{}".format(name, "pca")
-        elif alg == 1:
-            name = "{}_{}".format(name, "norm_euclid")
+        alg_name = self.options[alg].lower().replace(" ", "_")
+        name = "{}_{}_{}".format(raster_1.name(), raster_2.name(), alg_name)
         ProcessingConfig.setSettingValue(ProcessingConfig.RESULTS_GROUP_NAME, name)
 
         # save result in temporary file
