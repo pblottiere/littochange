@@ -9,8 +9,7 @@ __license__ = "GPLv3"
 
 from qgis.core import QgsApplication
 
-from .src.core import deps
-from .src.gui.provider.provider import LittoDynProvider
+from .src.core.deps import Deps
 
 
 def classFactory(iface):
@@ -22,7 +21,16 @@ class LittoDyn(object):
         self.iface = iface
         self.provider = None
 
+        deps = Deps()
+        self.fresh_install = deps.run()
+
     def initProcessing(self):
+        if self.fresh_install:
+            widget = self.iface.messageBar().createMessage("LittoDyn", "Some missing dependencies have been installed at startup. QGIS have to be restarted to use LittoDyn plugin.")
+            self.iface.messageBar().pushWidget(widget, Qgis.Warning)
+            return
+
+        from .src.gui.provider.provider import LittoDynProvider
         self.provider = LittoDynProvider()
         QgsApplication.processingRegistry().addProvider(self.provider)
 
@@ -30,4 +38,7 @@ class LittoDyn(object):
         self.initProcessing()
 
     def unload(self):
+        if not self.provider:
+            return
+
         QgsApplication.processingRegistry().removeProvider(self.provider)
