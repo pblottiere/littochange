@@ -7,30 +7,41 @@ __date__ = "2020/10/10"
 __email__ = "blottiere.paul@gmail.com"
 __license__ = "GPLv3"
 
+import os
+import tempfile
+
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QComboBox, QLineEdit
 
 from qgis import processing
 from qgis.core import (
+    QgsFields,
     QgsProject,
+    QgsWkbTypes,
     QgsMapLayer,
     QgsGeometry,
-    QgsFields,
     QgsMessageLog,
-    QgsVectorLayer,
     QgsProcessing,
     QgsFeatureSink,
-    QgsProcessingContext,
+    QgsRasterLayer,
+    QgsVectorLayer,
     QgsProcessingUtils,
+    QgsVectorFileWriter,
+    QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingAlgorithm,
+    QgsProcessingParameterEnum,
     QgsProcessingParameterDefinition,
-    QgsProcessingParameterFeatureSource,
     QgsProcessingParameterFeatureSink,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterRasterDestination
 )
 
 from processing.gui.wrappers import WidgetWrapper
 from processing.core.ProcessingConfig import ProcessingConfig
+
+from littodyn.src.core.changedetector.pca import LittoDynChangeDetectorPCA
+from littodyn.src.core.changedetector.norm import LittoDynChangeDetectorNormEuclid
 
 
 class LittoDynRasterComboBoxWrapper(WidgetWrapper):
@@ -156,8 +167,10 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
     INPUT_EXTENT = "INPUT_EXTENT"
     INPUT_RASTER_1 = "INPUT_RASTER_1"
     INPUT_RASTER_2 = "INPUT_RASTER_2"
+    INPUT_ALG_NAME = "INPUT_ALG_NAME"
     INFO_DATE = "INFO_DATE"
     OUTPUT_BUFFER = "OUTPUT_BUFFER"
+    OUTPUT_CHANGES = "OUTPUT_CHANGES"
 
     def tr(self, string):
         return QCoreApplication.translate("Processing", string)
@@ -175,6 +188,11 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
         return self.tr("Change Detection")
 
     def initAlgorithm(self, config=None):
+        options = ["PCA", "Euclidean Norm"]
+        self.addParameter(
+            QgsProcessingParameterEnum(self.INPUT_ALG_NAME, self.tr("Algorithm"), options=options, defaultValue=0)
+        )
+
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT_EXTENT, self.tr("Extent"), [QgsProcessing.TypeVectorPolygon]
@@ -199,7 +217,16 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
             )
         )
 
+        self.addParameter(
+            QgsProcessingParameterRasterDestination(
+                self.OUTPUT_CHANGES, self.tr("Changes")
+            )
+        )
+
     def processAlgorithm(self, parameters, context, feedback):
+        # extract input parameters
+        alg = self.parameterAsEnum(parameters, self.INPUT_ALG_NAME, context)
+
         extent = self.parameterAsVectorLayer(parameters, self.INPUT_EXTENT, context)
 
         raster_1_id = self.parameterAsString(parameters, self.INPUT_RASTER_1, context)
@@ -217,16 +244,49 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
             extent.sourceCrs(),
         )
 
+        outputFile = self.parameterAsRasterLayer(parameters, self.OUTPUT_CHANGES, context)
+
+        # store output layers in group
         name = "{}_{}".format(raster_1.name(), raster_2.name())
         ProcessingConfig.setSettingValue(ProcessingConfig.RESULTS_GROUP_NAME, name)
 
+        # create a temporary vector layer
+        tmp = tempfile.mkdtemp()
+        path_roi = os.path.join(tmp, 'roi.shp')
+        writer = QgsVectorFileWriter(path_roi, 'UTF-8', QgsFields(), QgsWkbTypes.Polygon, extent.sourceCrs(), 'ESRI Shapefile')
+
+        # create buffered extent and update temporary shp for detector
         for feature in extent.getFeatures():
             geom = feature.geometry()
             buffer = geom.buffer(
-                0.001, 4, QgsGeometry.CapFlat, QgsGeometry.JoinStyleMiter, 100
+                10, 100, QgsGeometry.CapFlat, QgsGeometry.JoinStyleMiter, 100
             )
             feature.setGeometry(buffer)
             feature.setFields(QgsFields())
             sink.addFeature(feature)
+            writer.addFeature(feature)
+        del writer
 
-        return {self.OUTPUT_BUFFER: self.dest_id}
+        # run change detector
+        path1 = raster_1.source()
+        path2 = raster_2.source()
+        detector = LittoDynChangeDetectorPCA(path1, path2, path_roi)
+        if alg == 1:  # Euclidean norm
+            detector = LittoDynChangeDetectorNormEuclid(path1, path2, path_roi)
+        detector.detect()
+
+        # save result in temporary file
+        tmp = tempfile.mkdtemp()
+        path_changes = os.path.join(tmp, 'changes.tif')
+        detector.save(path_changes)
+
+        rl = QgsRasterLayer(path_changes, "changes", "gdal")
+        context.temporaryLayerStore().addMapLayer(rl)
+        context.addLayerToLoadOnCompletion(
+            rl.id(),
+            QgsProcessingContext.LayerDetails('Changes',
+                                              context.project(),
+                                              self.OUTPUT_CHANGES))
+
+
+        return {self.OUTPUT_CHANGES: rl.id(), self.OUTPUT_BUFFER: self.dest_id, self.OUTPUT_CHANGES: rl.id()}

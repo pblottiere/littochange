@@ -75,3 +75,4 @@ class LittoDynChangeDetector(object):
         self.ds.SetProjection(self.proj)
         self.ds.SetGeoTransform(self.geo)
         self.ds.GetRasterBand(1).WriteArray(self.change)
+        self.ds = None
