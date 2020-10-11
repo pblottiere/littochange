@@ -1,4 +1,4 @@
-# LittoDyn
+<div style="float: left;"><img src="https://github.com/pblottiere/littodyn/blob/master/logo.png" height="128"/></div> 
 
 
 ### Installation
