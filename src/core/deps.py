@@ -27,6 +27,8 @@ class Deps(object):
                     dep = "sklearn"
                 importlib.import_module(dep)
             except ModuleNotFoundError:
+                if dep == "sklearn":
+                    dep = "scikit-learn"
                 missing.append(dep)
 
         if not missing:
