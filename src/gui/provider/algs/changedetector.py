@@ -40,8 +40,8 @@ from qgis.core import (
 from processing.gui.wrappers import WidgetWrapper
 from processing.core.ProcessingConfig import ProcessingConfig
 
-from littodyn.src.core.changedetector.pca import LittoDynChangeDetectorPCA
-from littodyn.src.core.changedetector.norm import LittoDynChangeDetectorNormEuclid
+from littodyn.src.core.changedetector.pca import LittoDynChangeDetectorPca
+from littodyn.src.core.changedetector.norm_euclid import LittoDynChangeDetectorNormEuclid
 
 
 class LittoDynRasterComboBoxWrapper(WidgetWrapper):
@@ -246,10 +246,6 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
 
         outputFile = self.parameterAsRasterLayer(parameters, self.OUTPUT_CHANGES, context)
 
-        # store output layers in group
-        name = "{}_{}".format(raster_1.name(), raster_2.name())
-        ProcessingConfig.setSettingValue(ProcessingConfig.RESULTS_GROUP_NAME, name)
-
         # create a temporary vector layer
         tmp = tempfile.mkdtemp()
         path_roi = os.path.join(tmp, 'roi.shp')
@@ -270,10 +266,18 @@ class LittoDynChangeDetectorAlgorithm(QgsProcessingAlgorithm):
         # run change detector
         path1 = raster_1.source()
         path2 = raster_2.source()
-        detector = LittoDynChangeDetectorPCA(path1, path2, path_roi)
+        detector = LittoDynChangeDetectorPca(path1, path2, path_roi)
         if alg == 1:  # Euclidean norm
             detector = LittoDynChangeDetectorNormEuclid(path1, path2, path_roi)
         detector.detect()
+
+        # store output layers in group
+        name = "{}_{}".format(raster_1.name(), raster_2.name())
+        if alg == 0:
+            name = "{}_{}".format(name, "pca")
+        elif alg == 1:
+            name = "{}_{}".format(name, "norm_euclid")
+        ProcessingConfig.setSettingValue(ProcessingConfig.RESULTS_GROUP_NAME, name)
 
         # save result in temporary file
         tmp = tempfile.mkdtemp()
